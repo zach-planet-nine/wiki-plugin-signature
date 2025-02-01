@@ -6,18 +6,28 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-git-authors');
 
   grunt.initConfig({
-    clean: ['client/signature.js', 'client/signature.js.map', 'test/test.js', 'test/test.js.map'],
+    clean: ['client/signature.js', 'client/signature.js.map', 'server/server.js', 'test/test.js', 'test/test.js.map'],
 
     browserify: {
-      plugin: {
-        src: ['client/signature.coffee'],
-        dest: 'client/signature.js',
-        options: {
-          transform: ['coffeeify'],
-          browserifyOptions: {
-            extensions: ".coffee"
-          }
-        }
+      client: { 
+	src: ['client/signature.coffee'],
+	dest: 'client/signature.js',
+	options: {
+	  transform: ['coffeeify'],
+	  browserifyOptions: {
+	    extensions: ".coffee"
+	  }
+	}
+      },
+      server: {  
+	src: ['server/server.coffee'],
+	dest: 'server/server.js',
+	options: {
+	  transform: ['coffeeify'],
+	  browserifyOptions: {
+	    extensions: ".coffee"
+	  }
+	}
       }
     },
 
@@ -40,7 +50,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('build', ['clean', 'mochaTest', 'browserify']);
+  grunt.registerTask('build', ['clean', 'mochaTest', 'browserify:client', 'browserify:server']);
   grunt.registerTask('default', ['build']);
 
 };

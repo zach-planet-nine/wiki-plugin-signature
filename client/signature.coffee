@@ -1,17 +1,8 @@
 
 crypto = require 'crypto'
-fs = require 'fs'
-path = require 'path'
-sessionless = require 'sessionless-node'
 
-keys = {}
-
-fs.exists idfile (exists) ->
-  if exists
-    fs.readFile(idFile, (err, data) ->
-      if err then return cb err
-      keys = JSON.parse(data))
-      console.log 'keys', keys
+# this is meant to be .wiki/status/owners.json, but any valid path with the correct json will work
+idFile = process.argv.id || ''
 
 expand = (text) ->
   text
@@ -35,21 +26,24 @@ check = ($item) ->
   sum.digest 'hex'
 
 validateSignature = (sigObj) -> 
+  console.log 'checking signature', sigObj
   algo = sigObj.algo
   
   switch algo
-    case 'trivial': return true
-      break
-    case 'ecdsa': 
+    when 'trivial' 
+      return true
+    when 'ecdsa'
       timestamp = sigObj.timestamp
       rev = sigObj.rev
-      algo = sigObj.algo 
+      algo = sigObj.algo
       sum = sigObj.sum
       message = timestamp + rev + algo + sum
-
       signature = sigObj.signature
-
-      return sessionless.verifySignature(signature, message, keys.pubKey)
+      # return sessionless.verifySignature(signature, message, keys.pubKey)
+      # here is where we get the signers' public keys
+      return true
+    else
+      null
 
 emit = ($item, item) ->
 
@@ -57,7 +51,9 @@ emit = ($item, item) ->
 
   status = (sigs) ->
     if validateSignature sigs[sum]
-      "<td style=\"color: #3f3; text-align: right;\">valid"
+      # "<td style=\"color: #3f3; text-align: right;\">valid"
+      signature = sigs[sum].signature
+      "<td style=\"color: #f3f; text-align: right;\">valid: " + JSON.stringify(sigs[sum])
     else
       "<td style=\"color: #f88; text-align: right;\">invalid"
 
@@ -89,6 +85,7 @@ bind = ($item, item) ->
   $item.dblclick -> wiki.textEditor $item, item
 
   $item.find('button').click ->
+    console.log 'the button is getting clicked'
     date = new Date()
     timestamp = new Date().getTime() + ''
     rev = page($item).journal.length-1
@@ -96,14 +93,24 @@ bind = ($item, item) ->
     algo = 'ecdsa'
     sum = check $item
     host = location.host
-    signature = await sessionless.sign(timestamp + rev + algo + sum + signature)
-    item.signatures ||= {}
-    item.signatures[location.host] ||= {}
-    item.signatures[location.host][sum] = {date, timestamp, rev, algo, sum, signature}
-    $item.empty()
-    emit $item, item
-    bind $item, item
-    update()
+    console.log 'signining sum', sum
+    # sessionless.sign(timestamp + rev + algo + sum)
+    fetch('/plugin/signature/' + timestamp + rev + algo + sum)
+      .then((res) -> 
+        item.signatures ||= {}
+        item.signatures[location.host] ||= {}
+        return res.json()
+      ).then((json) ->
+        console.log 'json', json
+        signature = json.signature
+        item.signatures[location.host][sum] = {date, timestamp, rev, algo, sum, signature}
+        $item.empty()
+        emit $item, item
+        bind $item, item
+        update()
+      ).catch((err) ->
+        console.error('failure to sign message')
+      )
 
 
 window.plugins.signature = {emit, bind} if window?
