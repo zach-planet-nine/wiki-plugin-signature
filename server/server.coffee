@@ -22,12 +22,14 @@ startServer = (params) -> (
   # keys = sessionless.generateKeys saveKeys getKeys
 
   keys = {}
+  sessionless.getKeys = () -> keys
 
   fs.exists idFile, (exists) ->
     if exists
-      fs.readFile idFile, (err, data) -> 
+      fs.readFile idFile, {encoding: 'utf8'}, (err, data) -> 
+        console.log 'error getting keys', err
         if err then return cb err
-        keys = JSON.parse(data)
+        keys = JSON.parse(data).keys
 
   app.get '/plugin/signature/key', (req, res) ->
     console.log 'keys', keys

@@ -4,6 +4,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-git-authors');
+  grunt.loadNpmTasks('grunt-contrib-coffee');
 
   grunt.initConfig({
     clean: ['client/signature.js', 'client/signature.js.map', 'server/server.js', 'test/test.js', 'test/test.js.map'],
@@ -18,15 +19,13 @@ module.exports = function (grunt) {
 	    extensions: ".coffee"
 	  }
 	}
-      },
-      server: {  
-	src: ['server/server.coffee'],
-	dest: 'server/server.js',
-	options: {
-	  transform: ['coffeeify'],
-	  browserifyOptions: {
-	    extensions: ".coffee"
-	  }
+      }
+    },
+
+    coffee: {
+      compile: {
+	files: {
+	  'server/server.js': 'server/server.coffee'
 	}
       }
     },
@@ -50,7 +49,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('build', ['clean', 'mochaTest', 'browserify:client', 'browserify:server']);
+  grunt.registerTask('build', ['clean', 'mochaTest', 'browserify:client', 'coffee']);
   grunt.registerTask('default', ['build']);
 
 };

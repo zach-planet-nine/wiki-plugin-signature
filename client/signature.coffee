@@ -52,15 +52,15 @@ emit = ($item, item) ->
   status = (sigs) ->
     if validateSignature sigs[sum]
       # "<td style=\"color: #3f3; text-align: right;\">valid"
-      signature = sigs[sum].signature
-      "<td style=\"color: #f3f; text-align: right;\">valid: " + JSON.stringify(sigs[sum])
+     "<td style=\"color: #f3f; text-align: left;\">valid"
     else
-      "<td style=\"color: #f88; text-align: right;\">invalid"
+      "<td style=\"color: #f88; text-align: left;\">invalid"
 
 
   report = ->
-    for site, sigs of item.signatures || {}
-      "<tr>#{status sigs}<td>#{site}"
+    for site, sigs of item.signatures || {} 
+      signature = sigs[sum].signature
+      "<tr>#{status sigs}<br>#{signature}<br>#{site}</td>"
 
   $item.append """
     <div style="background-color:#eee; padding:8px;">
