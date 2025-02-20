@@ -50,29 +50,51 @@ emit = ($item, item) ->
   sum = check $item
 
   status = (sigs) ->
+    console.log 'sum is', sum
     if validateSignature sigs[sum]
       # "<td style=\"color: #3f3; text-align: right;\">valid"
      "<td style=\"color: #f3f; text-align: left;\">valid"
     else
       "<td style=\"color: #f88; text-align: left;\">invalid"
 
+  getKeys = ->
+    getKeysPromise = new Promise (resolve, reject) ->
+      fetches = []
+      for site of item.signatures || {}
+        f = fetch(site + '/wiki/plugin/security/key').then (key) ->
+          for sigs of item.signatures[site]
+            sigs[sum].pubKey = pubKeyForSite
+
+        fetches.push f
+
+      Promise.all(fetches)
+      .then(resolve)
+      .catch(reject)
+
+    getKeysPromise
 
   report = ->
-    for site, sigs of item.signatures || {} 
-      signature = sigs[sum].signature
-      "<tr>#{status sigs}<br>#{signature}<br>#{site}</td>"
+    reportPromise = new Promise (resolve, reject) -> 
+      statuses = []
+      for site, sigs of item.signatures || {}
+        signature = sigs[sum].signature
+        statuses.push("<tr>#{status sigs}<br>#{signature}<br>#{site}</td>")
+      resolve(statuses)
 
+    reportPromise
+
+  getKeys().then(report).then($ ->
   $item.append """
     <div style="background-color:#eee; padding:8px;">
       <center>
         #{expand item.text}
         <table style="background-color:#f8f8f8; margin:8px; padding:8px; min-width:70%">
-          #{report().join('')}
+          #{$.join('')}
         </table>
         <button>sign</button>
       </center>
     </div>
-  """
+  """)
 
 bind = ($item, item) ->
 

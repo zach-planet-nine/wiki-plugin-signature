@@ -11,32 +11,23 @@ startServer = (params) -> (
 
   # this is meant to be .wiki/status/owners.json, but any valid path with the correct json will work
   idFile = argv.id || ''
-
-  # saveKeys = # tbd
-
-  # getKeys = # tbd
-
-  # newkey = () -> Math.floor(Math.random()*1000000).toString()
-  # if getKeys() # return keys we're good
-  # else 
-  # keys = sessionless.generateKeys saveKeys getKeys
-
-  keys = {}
+  
+  keys = {
+    privateKey: argv.private_key,
+    pubKey: argv.pub_key
+  }
   sessionless.getKeys = () -> keys
 
-  fs.exists idFile, (exists) ->
-    if exists
-      fs.readFile idFile, {encoding: 'utf8'}, (err, data) -> 
-        console.log 'error getting keys', err
-        if err then return cb err
-        keys = JSON.parse(data).keys
-
   app.get '/plugin/signature/key', (req, res) ->
+    if !keys.pubKey 
+      res.sendStatus(404)
     console.log 'keys', keys
     res.json {public: keys.pubKey, algo:'ecdsa'}
 
   app.get '/plugin/signature/:thing', (req, res) ->
     console.log 'got a request to sign'
+    if !keys.privateKey 
+      res.sendStatus(404)
     sessionless.sign(req.params.thing)
       .then (signature) -> 
         console.log 'signature', signature
