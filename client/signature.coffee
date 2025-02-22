@@ -39,9 +39,12 @@ validateSignature = (sigObj) ->
       sum = sigObj.sum
       message = timestamp + rev + algo + sum
       signature = sigObj.signature
-      # return sessionless.verifySignature(signature, message, keys.pubKey)
+      fetch("/plugin/signature/verify?signature=#{signature}&message=#{message}&pubKey=#{sigObj.pubKey}")
+        .then (response) -> response.json()
+        .then (result) -> result
+      # return sessionless.verifySignature(signature, message, sigObj.pubKey)
       # here is where we get the signers' public keys
-      return true
+      # return true
     else
       null
 
@@ -51,19 +54,40 @@ emit = ($item, item) ->
 
   status = (sigs) ->
     console.log 'sum is', sum
-    if validateSignature sigs[sum]
-      # "<td style=\"color: #3f3; text-align: right;\">valid"
-     "<td style=\"color: #f3f; text-align: left;\">valid"
-    else
-      "<td style=\"color: #f88; text-align: left;\">invalid"
+    statusPromise = new Promise (resolve, reject) ->
+      validateSignature(sigs[sum]).then (validated) ->
+        if validated
+          # "<td style=\"color: #3f3; text-align: right;\">valid"
+          resolve "<td style=\"color: #f3f; text-align: left;\">valid"
+        else
+          resolve "<td style=\"color: #f88; text-align: left;\">invalid"
+
+    statusPromise
 
   getKeys = ->
     getKeysPromise = new Promise (resolve, reject) ->
       fetches = []
       for site of item.signatures || {}
-        f = fetch(site + '/wiki/plugin/security/key').then (key) ->
-          for sigs of item.signatures[site]
-            sigs[sum].pubKey = pubKeyForSite
+        encodedSite = encodeURIComponent site
+        f = fetch('/plugin/signature/owner-key?site=' + encodedSite)
+          .then (resp) ->
+            console.log 'received response from server', resp
+            resp.json()
+              .then (keyJSON) ->
+                console.log 'keyJSON is', keyJSON
+                console.log item.signatures
+                console.log item.signatures[site]
+                for sig of item.signatures[site]
+                  pubKeyForSite = keyJSON.public
+                  console.log item.signatures[site][sig]
+                  if !item.signatures[site][sig]
+                    continue
+                  item.signatures[site][sig].pubKey = pubKeyForSite
+              .catch (err) -> 
+                console.warn 'this is actually the error', err
+                throw new Error 'malformed json error'
+          .catch (err) ->
+            console.warn err
 
         fetches.push f
 
@@ -78,25 +102,38 @@ emit = ($item, item) ->
       statuses = []
       for site, sigs of item.signatures || {}
         signature = sigs[sum].signature
-        statuses.push("<tr>#{status sigs}<br>#{signature}<br>#{site}</td>")
-      resolve(statuses)
+        status = status sigs
+        # statuses.push("<tr>#{status sigs}<br>#{signature}<br>#{site}</td>")
+        statuses.push status
+
+      Promise.all(statuses).then (stats) ->
+        resolve(stats)
 
     reportPromise
 
-  getKeys().then(report).then($ ->
-  $item.append """
-    <div style="background-color:#eee; padding:8px;">
-      <center>
-        #{expand item.text}
-        <table style="background-color:#f8f8f8; margin:8px; padding:8px; min-width:70%">
-          #{$.join('')}
-        </table>
-        <button>sign</button>
-      </center>
-    </div>
-  """)
+  getKeys()
+    .then (keys) -> 
+      console.log 'received keys', keys
+      report()
+    .then (statuses) ->
+      console.log 'statuses are', statuses
+      $item.append """
+        <div style="background-color:#eee; padding:8px;">
+          <center>
+            #{expand item.text}
+            <table style="background-color:#f8f8f8; margin:8px; padding:8px; min-width:70%">
+              #{statuses.join('')}
+            </table>
+            <button class="sign">sign</button>
+            <button class="persist">persist</button>
+            <a class="hiddenDownloadElement" style="display:none"></a>
+          </center>
+        </div>
+      """
+      bind $item, item
 
 bind = ($item, item) ->
+  console.log 'calling bind with $item', $item
 
   update = ->
     wiki.pageHandler.put $item.parents('.page:first'),
@@ -106,7 +143,15 @@ bind = ($item, item) ->
 
   $item.dblclick -> wiki.textEditor $item, item
 
-  $item.find('button').click ->
+  $item.find('.persist').click ->
+    fetch('/plugin/signature/persist').then (res) ->
+      res.json().then ($) ->
+        console.log "got response from server", $
+        # if $.uuid
+          # window.alert "PERSISTED! at #{$.uuid}"
+        console.log "should have alerted"
+
+  $item.find('.sign').click ->
     console.log 'the button is getting clicked'
     date = new Date()
     timestamp = new Date().getTime() + ''

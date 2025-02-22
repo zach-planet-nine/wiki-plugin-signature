@@ -4,6 +4,8 @@
 fs = require 'fs'
 path = require 'path'
 sessionless = require 'sessionless-node'
+# bdo = require 'bdo-js' // allyabase client libs need to be adapted for commonjs, and I want
+#                          // to think about the best way of doing that
 
 startServer = (params) -> (
   app = params.app
@@ -16,13 +18,77 @@ startServer = (params) -> (
     privateKey: argv.private_key,
     pubKey: argv.pub_key
   }
+  console.log "pub_key looks like this: " + argv.pub_key
   sessionless.getKeys = () -> keys
+
+  app.get '/plugin/signature/owner-key', (req, res) -> 
+    site = 'http://' + decodeURIComponent req.query.site
+    console.log 'fetching key from ', site
+    resp = fetch(site + '/plugin/signature/key')
+      .then (resp) ->
+        resp.json()
+          .then (keyJSON) ->
+            res.send keyJSON
+          .catch (err) -> 
+            throw new Error 'malformed key response'
+      .catch (err) ->
+        console.warn err
+        res.sendStatus 404
 
   app.get '/plugin/signature/key', (req, res) ->
     if !keys.pubKey 
       res.sendStatus(404)
     console.log 'keys', keys
     res.json {public: keys.pubKey, algo:'ecdsa'}
+
+  app.get '/plugin/signature/verify', (req, res) ->
+    console.log 'query is: ', req.query
+    signature = req.query.signature
+    message = req.query.message
+    pubKey = req.query.pubKey
+    verified = sessionless.verifySignature signature, message, pubKey
+    res.send '' + verified
+
+  app.get '/plugin/signature/persist', (req, res) ->
+    console.log "starting persist"
+    noop = () -> {}
+    wikiHome = "/Users/zachbabb/.wiki"
+    files = fs.readdirSync "#{wikiHome}/pages"
+    console.log "files", files
+    wikiObj = {}
+    files.forEach (file) ->
+      wikiObj[file] = fs.readFileSync "#{wikiHome}/pages/#{file}", {encoding: 'utf-8'}
+
+    console.log "persisting #{Object.keys(wikiObj).length} files"
+
+    payload = {timestamp: new Date().getTime() + "", pubKey: keys.pubKey, hash: "fedwiki", bdo: wikiObj}
+    console.log(typeof payload.timestamp)
+    console.log(typeof keys.pubKey)
+    console.log(typeof payload.hash)
+    message = "#{payload.timestamp}#{payload.pubKey}#{payload.hash}"
+    console.log message
+    console.log message.length
+    console.log keys.privateKey
+    # sessionless.getKeys().then (_keys) -> 
+    console.log "the received keys are: #{JSON.stringify(sessionless.getKeys())}"
+    console.log keys.privateKey
+    console.log typeof keys.privateKey
+    sessionless.sign(message).then (signature) ->
+      payload.signature = signature
+      console.log "Sending to allyabase with signature", payload.signature
+      console.log "is this signature even cool?", sessionless.verifySignature(signature, message, sessionless.getKeys().pubKey)
+      fetch("https://dev.bdo.allyabase.com/user/create", {method: "put", body: JSON.stringify(payload), headers: {"Content-Type": "application/json"}}).then (resp) ->
+        console.log "received status from allyabase", resp.status
+        resp.json().then (user) ->
+          console.log "received response from allyabase", user
+          uuid = user.uuid
+          res.send({uuid: uuid})
+     
+    # noop = () -> {}
+    # bdoPromise = bdo.createUser 'foo', wikiObj, noop, sessionless.getKeys
+    # bdoPromise.then (uuid) ->
+      # console.log "you can get your wiki at: #{uuid}"
+
 
   app.get '/plugin/signature/:thing', (req, res) ->
     console.log 'got a request to sign'
@@ -33,6 +99,10 @@ startServer = (params) -> (
         console.log 'signature', signature
         res.json {signature}
       .catch (err) ->
-        console.error err)
+        console.error err
+
+    res.sendStatus 404
+
+)
 
 module.exports = {startServer}
