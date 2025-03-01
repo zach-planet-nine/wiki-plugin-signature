@@ -130,7 +130,7 @@ emit = function($item, item) {
     return report();
   }).then(function(statuses) {
     console.log('statuses are', statuses);
-    $item.append("<div style=\"background-color:#eee; padding:8px;\">\n  <center>\n    " + (expand(item.text)) + "\n    <table style=\"background-color:#f8f8f8; margin:8px; padding:8px; min-width:70%\">\n      " + (statuses.join('')) + "\n    </table>\n    <button class=\"sign\">sign</button>\n    <button class=\"persist\">persist</button>\n    <a class=\"hiddenDownloadElement\" style=\"display:none\"></a>\n  </center>\n</div>");
+    $item.append("<div style=\"background-color:#eee; padding:8px;\">\n  <center>\n    " + (expand(item.text)) + "\n    <table style=\"background-color:#f8f8f8; margin:8px; padding:8px; min-width:70%\">\n      " + (statuses.join('')) + "\n    </table>\n    <button class=\"sign\">sign</button>\n    # <button class=\"persist\">persist</button>\n    <a class=\"hiddenDownloadElement\" style=\"display:none\"></a>\n  </center>\n</div>");
     return bind($item, item);
   });
 };
@@ -147,14 +147,6 @@ bind = function($item, item) {
   };
   $item.dblclick(function() {
     return wiki.textEditor($item, item);
-  });
-  $item.find('.persist').click(function() {
-    return fetch('/plugin/signature/persist').then(function(res) {
-      return res.json().then(function($) {
-        console.log("got response from server", $);
-        return console.log("should have alerted");
-      });
-    });
   });
   return $item.find('.sign').click(function() {
     var algo, date, host, rev, sum, timestamp;

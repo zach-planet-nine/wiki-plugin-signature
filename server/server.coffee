@@ -14,12 +14,12 @@ startServer = (params) -> (
   # this is meant to be .wiki/status/owners.json, but any valid path with the correct json will work
   idFile = argv.id || ''
   
-  keys = {
+  sessionlessKeys = {
     privateKey: argv.private_key,
     pubKey: argv.pub_key
   }
   console.log "pub_key looks like this: " + argv.pub_key
-  sessionless.getKeys = () -> keys
+  sessionless.getKeys = () -> sessionlessKeys
 
   app.get '/plugin/signature/owner-key', (req, res) -> 
     site = 'http://' + decodeURIComponent req.query.site
@@ -36,10 +36,10 @@ startServer = (params) -> (
         res.sendStatus 404
 
   app.get '/plugin/signature/key', (req, res) ->
-    if !keys.pubKey 
+    if !sessionlessKeys.pubKey 
       res.sendStatus(404)
-    console.log 'keys', keys
-    res.json {public: keys.pubKey, algo:'ecdsa'}
+    console.log 'sessionlessKeys', sessionlessKeys
+    res.json {public: sessionlessKeys.pubKey, algo:'ecdsa'}
 
   app.get '/plugin/signature/verify', (req, res) ->
     console.log 'query is: ', req.query
@@ -59,20 +59,20 @@ startServer = (params) -> (
     files.forEach (file) ->
       wikiObj[file] = fs.readFileSync "#{wikiHome}/pages/#{file}", {encoding: 'utf-8'}
 
-    console.log "persisting #{Object.keys(wikiObj).length} files"
+    console.log "persisting #{Object.sessionlessKeys(wikiObj).length} files"
 
-    payload = {timestamp: new Date().getTime() + "", pubKey: keys.pubKey, hash: "fedwiki", bdo: wikiObj}
+    payload = {timestamp: new Date().getTime() + "", pubKey: sessionlessKeys.pubKey, hash: "fedwiki", bdo: wikiObj}
     console.log(typeof payload.timestamp)
-    console.log(typeof keys.pubKey)
+    console.log(typeof sessionlessKeys.pubKey)
     console.log(typeof payload.hash)
     message = "#{payload.timestamp}#{payload.pubKey}#{payload.hash}"
     console.log message
     console.log message.length
-    console.log keys.privateKey
-    # sessionless.getKeys().then (_keys) -> 
-    console.log "the received keys are: #{JSON.stringify(sessionless.getKeys())}"
-    console.log keys.privateKey
-    console.log typeof keys.privateKey
+    console.log sessionlessKeys.privateKey
+    # sessionless.getKeys().then (_sessionlessKeys) -> 
+    console.log "the received sessionlessKeys are: #{JSON.stringify(sessionless.getKeys())}"
+    console.log sessionlessKeys.privateKey
+    console.log typeof sessionlessKeys.privateKey
     sessionless.sign(message).then (signature) ->
       payload.signature = signature
       console.log "Sending to allyabase with signature", payload.signature
@@ -91,8 +91,8 @@ startServer = (params) -> (
 
 
   app.get '/plugin/signature/:thing', (req, res) ->
-    console.log "got a request to sign #{req.params.thing} with #{JSON.stringify(keys)}"
-    if !keys.privateKey 
+    console.log "got a request to sign #{req.params.thing} with #{JSON.stringify(sessionlessKeys)}"
+    if !sessionlessKeys.privateKey 
       console.log "there's no private key"
       res.sendStatus(404)
     sessionless.sign(req.params.thing)
