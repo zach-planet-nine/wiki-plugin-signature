@@ -125,7 +125,7 @@ emit = ($item, item) ->
               #{statuses.join('')}
             </table>
             <button class="sign">sign</button>
-            <button class="persist">persist</button>
+            # <button class="persist">persist</button>
             <a class="hiddenDownloadElement" style="display:none"></a>
           </center>
         </div>
@@ -143,13 +143,13 @@ bind = ($item, item) ->
 
   $item.dblclick -> wiki.textEditor $item, item
 
-  $item.find('.persist').click ->
-    fetch('/plugin/signature/persist').then (res) ->
-      res.json().then ($) ->
-        console.log "got response from server", $
+  # $item.find('.persist').click ->
+    # fetch('/plugin/signature/persist').then (res) ->
+      # res.json().then ($) ->
+        # console.log "got response from server", $
         # if $.uuid
           # window.alert "PERSISTED! at #{$.uuid}"
-        console.log "should have alerted"
+        # console.log "should have alerted"
 
   $item.find('.sign').click ->
     console.log 'the button is getting clicked'

@@ -91,17 +91,18 @@ startServer = (params) -> (
 
 
   app.get '/plugin/signature/:thing', (req, res) ->
-    console.log 'got a request to sign'
+    console.log "got a request to sign #{req.params.thing} with #{JSON.stringify(keys)}"
     if !keys.privateKey 
+      console.log "there's no private key"
       res.sendStatus(404)
     sessionless.sign(req.params.thing)
       .then (signature) -> 
         console.log 'signature', signature
         res.json {signature}
+        return
       .catch (err) ->
         console.error err
-
-    res.sendStatus 404
+        res.sendStatus(404)
 
 )
 
