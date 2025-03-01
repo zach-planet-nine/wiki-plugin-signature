@@ -180,6 +180,6 @@ bind = ($item, item) ->
       )
 
 
-window.plugins.signature = {emit, bind} if window?
+window.plugins.signature2 = {emit, bind} if window?
 module.exports = {expand} if module?
 
