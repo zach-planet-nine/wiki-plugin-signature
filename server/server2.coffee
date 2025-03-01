@@ -21,10 +21,10 @@ startServer = (params) -> (
   console.log "pub_key looks like this: " + argv.pub_key
   sessionless.getKeys = () -> sessionlessKeys
 
-  app.get '/plugin/signature/owner-key', (req, res) -> 
+  app.get '/plugin/signature2/owner-key', (req, res) -> 
     site = 'http://' + decodeURIComponent req.query.site
     console.log 'fetching key from ', site
-    resp = fetch(site + '/plugin/signature/key')
+    resp = fetch(site + '/plugin/signature2/key')
       .then (resp) ->
         resp.json()
           .then (keyJSON) ->
@@ -35,13 +35,13 @@ startServer = (params) -> (
         console.warn err
         res.sendStatus 404
 
-  app.get '/plugin/signature/key', (req, res) ->
+  app.get '/plugin/signature2/key', (req, res) ->
     if !sessionlessKeys.pubKey 
       res.sendStatus(404)
     console.log 'sessionlessKeys', sessionlessKeys
     res.json {public: sessionlessKeys.pubKey, algo:'ecdsa'}
 
-  app.get '/plugin/signature/verify', (req, res) ->
+  app.get '/plugin/signature2/verify', (req, res) ->
     console.log 'query is: ', req.query
     signature = req.query.signature
     message = req.query.message
@@ -49,7 +49,7 @@ startServer = (params) -> (
     verified = sessionless.verifySignature signature, message, pubKey
     res.send '' + verified
 
-  app.get '/plugin/signature/persist', (req, res) ->
+  app.get '/plugin/signature2/persist', (req, res) ->
     console.log "starting persist"
     noop = () -> {}
     wikiHome = "/Users/zachbabb/.wiki"
@@ -90,7 +90,7 @@ startServer = (params) -> (
       # console.log "you can get your wiki at: #{uuid}"
 
 
-  app.get '/plugin/signature/:thing', (req, res) ->
+  app.get '/plugin/signature2/:thing', (req, res) ->
     console.log "got a request to sign #{req.params.thing} with #{JSON.stringify(sessionlessKeys)}"
     if !sessionlessKeys.privateKey 
       console.log "there's no private key"

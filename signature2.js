@@ -43,7 +43,7 @@ validateSignature = function(sigObj) {
       sum = sigObj.sum;
       message = timestamp + rev + algo + sum;
       signature = sigObj.signature;
-      return fetch("/plugin/signature/verify?signature=" + signature + "&message=" + message + "&pubKey=" + sigObj.pubKey).then(function(response) {
+      return fetch("/plugin/signature2/verify?signature=" + signature + "&message=" + message + "&pubKey=" + sigObj.pubKey).then(function(response) {
         return response.json();
       }).then(function(result) {
         return result;
@@ -77,7 +77,7 @@ emit = function($item, item) {
       fetches = [];
       for (site in item.signatures || {}) {
         encodedSite = encodeURIComponent(site);
-        f = fetch('/plugin/signature/owner-key?site=' + encodedSite).then(function(resp) {
+        f = fetch('/plugin/signature2/owner-key?site=' + encodedSite).then(function(resp) {
           console.log('received response from server', resp);
           return resp.json().then(function(keyJSON) {
             var pubKeyForSite, results, sig;
@@ -158,7 +158,7 @@ bind = function($item, item) {
     sum = check($item);
     host = location.host;
     console.log('signining sum', sum);
-    return fetch('/plugin/signature/' + timestamp + rev + algo + sum).then(function(res) {
+    return fetch('/plugin/signature2/' + timestamp + rev + algo + sum).then(function(res) {
       var base, name;
       item.signatures || (item.signatures = {});
       (base = item.signatures)[name = location.host] || (base[name] = {});

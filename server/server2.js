@@ -25,11 +25,11 @@
     sessionless.getKeys = function() {
       return sessionlessKeys;
     };
-    app.get('/plugin/signature/owner-key', function(req, res) {
+    app.get('/plugin/signature2/owner-key', function(req, res) {
       var resp, site;
       site = 'http://' + decodeURIComponent(req.query.site);
       console.log('fetching key from ', site);
-      return resp = fetch(site + '/plugin/signature/key').then(function(resp) {
+      return resp = fetch(site + '/plugin/signature2/key').then(function(resp) {
         return resp.json().then(function(keyJSON) {
           return res.send(keyJSON);
         }).catch(function(err) {
@@ -40,7 +40,7 @@
         return res.sendStatus(404);
       });
     });
-    app.get('/plugin/signature/key', function(req, res) {
+    app.get('/plugin/signature2/key', function(req, res) {
       if (!sessionlessKeys.pubKey) {
         res.sendStatus(404);
       }
@@ -50,7 +50,7 @@
         algo: 'ecdsa'
       });
     });
-    app.get('/plugin/signature/verify', function(req, res) {
+    app.get('/plugin/signature2/verify', function(req, res) {
       var message, pubKey, signature, verified;
       console.log('query is: ', req.query);
       signature = req.query.signature;
@@ -59,7 +59,7 @@
       verified = sessionless.verifySignature(signature, message, pubKey);
       return res.send('' + verified);
     });
-    app.get('/plugin/signature/persist', function(req, res) {
+    app.get('/plugin/signature2/persist', function(req, res) {
       var files, message, noop, payload, wikiHome, wikiObj;
       console.log("starting persist");
       noop = function() {
@@ -120,7 +120,7 @@
     // bdoPromise = bdo.createUser 'foo', wikiObj, noop, sessionless.getKeys
     // bdoPromise.then (uuid) ->
     // console.log "you can get your wiki at: #{uuid}"
-    return app.get('/plugin/signature/:thing', function(req, res) {
+    return app.get('/plugin/signature2/:thing', function(req, res) {
       var _getKeys;
       console.log(`got a request to sign ${req.params.thing} with ${JSON.stringify(sessionlessKeys)}`);
       if (!sessionlessKeys.privateKey) {

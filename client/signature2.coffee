@@ -39,7 +39,7 @@ validateSignature = (sigObj) ->
       sum = sigObj.sum
       message = timestamp + rev + algo + sum
       signature = sigObj.signature
-      fetch("/plugin/signature/verify?signature=#{signature}&message=#{message}&pubKey=#{sigObj.pubKey}")
+      fetch("/plugin/signature2/verify?signature=#{signature}&message=#{message}&pubKey=#{sigObj.pubKey}")
         .then (response) -> response.json()
         .then (result) -> result
       # return sessionless.verifySignature(signature, message, sigObj.pubKey)
@@ -69,7 +69,7 @@ emit = ($item, item) ->
       fetches = []
       for site of item.signatures || {}
         encodedSite = encodeURIComponent site
-        f = fetch('/plugin/signature/owner-key?site=' + encodedSite)
+        f = fetch('/plugin/signature2/owner-key?site=' + encodedSite)
           .then (resp) ->
             console.log 'received response from server', resp
             resp.json()
@@ -144,7 +144,7 @@ bind = ($item, item) ->
   $item.dblclick -> wiki.textEditor $item, item
 
   # $item.find('.persist').click ->
-    # fetch('/plugin/signature/persist').then (res) ->
+    # fetch('/plugin/signature2/persist').then (res) ->
       # res.json().then ($) ->
         # console.log "got response from server", $
         # if $.uuid
@@ -162,7 +162,7 @@ bind = ($item, item) ->
     host = location.host
     console.log 'signining sum', sum
     # sessionless.sign(timestamp + rev + algo + sum)
-    fetch('/plugin/signature/' + timestamp + rev + algo + sum)
+    fetch('/plugin/signature2/' + timestamp + rev + algo + sum)
       .then((res) -> 
         item.signatures ||= {}
         item.signatures[location.host] ||= {}
