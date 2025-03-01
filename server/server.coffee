@@ -59,7 +59,7 @@ startServer = (params) -> (
     files.forEach (file) ->
       wikiObj[file] = fs.readFileSync "#{wikiHome}/pages/#{file}", {encoding: 'utf-8'}
 
-    console.log "persisting #{Object.sessionlessKeys(wikiObj).length} files"
+    console.log "persisting #{Object.keys(wikiObj).length} files"
 
     payload = {timestamp: new Date().getTime() + "", pubKey: sessionlessKeys.pubKey, hash: "fedwiki", bdo: wikiObj}
     console.log(typeof payload.timestamp)
@@ -95,6 +95,9 @@ startServer = (params) -> (
     if !sessionlessKeys.privateKey 
       console.log "there's no private key"
       res.sendStatus(404)
+    _getKeys = sessionless.getKeys
+    sessionless.getKeys = () -> 
+      sessionlessKeys
     sessionless.sign(req.params.thing)
       .then (signature) -> 
         console.log 'signature', signature
@@ -103,6 +106,8 @@ startServer = (params) -> (
       .catch (err) ->
         console.error err
         res.sendStatus(404)
+      .finally () ->
+        sessionless.getKeys = _getKeys
 
 )
 

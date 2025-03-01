@@ -74,7 +74,7 @@
           encoding: 'utf-8'
         });
       });
-      console.log(`persisting ${Object.sessionlessKeys(wikiObj).length} files`);
+      console.log(`persisting ${Object.keys(wikiObj).length} files`);
       payload = {
         timestamp: new Date().getTime() + "",
         pubKey: sessionlessKeys.pubKey,
@@ -121,17 +121,24 @@
     // bdoPromise.then (uuid) ->
     // console.log "you can get your wiki at: #{uuid}"
     return app.get('/plugin/signature/:thing', function(req, res) {
+      var _getKeys;
       console.log(`got a request to sign ${req.params.thing} with ${JSON.stringify(sessionlessKeys)}`);
       if (!sessionlessKeys.privateKey) {
         console.log("there's no private key");
         res.sendStatus(404);
       }
+      _getKeys = sessionless.getKeys;
+      sessionless.getKeys = function() {
+        return sessionlessKeys;
+      };
       return sessionless.sign(req.params.thing).then(function(signature) {
         console.log('signature', signature);
         res.json({signature});
       }).catch(function(err) {
         console.error(err);
         return res.sendStatus(404);
+      }).finally(function() {
+        return sessionless.getKeys = _getKeys;
       });
     });
   };
