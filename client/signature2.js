@@ -73,9 +73,10 @@ emit = function($item, item) {
   getKeys = function() {
     var getKeysPromise;
     getKeysPromise = new Promise(function(resolve, reject) {
-      var encodedSite, f, fetches, site;
+      var _site, encodedSite, f, fetches, site;
       fetches = [];
-      for (site in item.signatures || {}) {
+      for (_site in item.signatures || {}) {
+        site = _site + '';
         console.log('seems like site isn\'t correct', site);
         encodedSite = encodeURIComponent(site);
         f = fetch('/plugin/signature2/owner-key?site=' + encodedSite).then(function(resp) {
