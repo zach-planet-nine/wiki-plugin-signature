@@ -44,6 +44,8 @@ validateSignature = function(sigObj) {
       return fetch("/plugin/signature2/verify?signature=" + signature + "&message=" + message + "&pubKey=" + sigObj.pubKey).then(function(response) {
         return response.json();
       }).then(function(result) {
+        console.log('result', result);
+        console.log('sigObj', sigObj);
         return result;
       });
     default:

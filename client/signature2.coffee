@@ -46,7 +46,10 @@ validateSignature = (sigObj) ->
       signature = sigObj.signature
       fetch("/plugin/signature2/verify?signature=#{signature}&message=#{message}&pubKey=#{sigObj.pubKey}")
         .then (response) -> response.json()
-        .then (result) -> result
+        .then (result) -> 
+          console.log 'result', result
+          console.log 'sigObj', sigObj
+          result
       # return sessionless.verifySignature(signature, message, sigObj.pubKey)
       # here is where we get the signers' public keys
       # return true
