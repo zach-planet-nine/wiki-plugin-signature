@@ -75,8 +75,9 @@ emit = ($item, item) ->
   getKeys = ->
     getKeysPromise = new Promise (resolve, reject) ->
       fetches = []
-      for _site of item.signatures || {}
-        site = _site + ''
+      Object.keys(item.signature).forEach (site) ->
+      # for _site of item.signatures || {}
+        # site = _site + ''
         console.log 'seems like site isn\'t correct', site
         encodedSite = encodeURIComponent site
         f = fetch('/plugin/signature2/owner-key?site=' + encodedSite)
