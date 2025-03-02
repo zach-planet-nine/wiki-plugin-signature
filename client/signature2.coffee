@@ -87,12 +87,12 @@ emit = ($item, item) ->
                 console.log 'keyJSON is', keyJSON
                 console.log item.signatures
                 console.log item.signatures[site]
+                console.log 'site is', site
                 for sig of item.signatures[site]
-                  pubKeyForSite = keyJSON.public
-                  console.log item.signatures[site][sig]
                   if !item.signatures[site][sig]
                     continue
-                  item.signatures[site][sig].pubKey = pubKeyForSite
+                  item.signatures[site][sig].pubKey = keyJSON.public
+                  console.log 'site', site, 'sig', sig, 'should have pubKey', keyJSON.public, item.signatures[site][sig]
               .catch (err) -> 
                 console.warn 'this is actually the error', err
                 throw new Error 'malformed json error'

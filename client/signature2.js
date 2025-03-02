@@ -82,18 +82,18 @@ emit = function($item, item) {
         f = fetch('/plugin/signature2/owner-key?site=' + encodedSite).then(function(resp) {
           console.log('received response from server', resp);
           return resp.json().then(function(keyJSON) {
-            var pubKeyForSite, results, sig;
+            var results, sig;
             console.log('keyJSON is', keyJSON);
             console.log(item.signatures);
             console.log(item.signatures[site]);
+            console.log('site is', site);
             results = [];
             for (sig in item.signatures[site]) {
-              pubKeyForSite = keyJSON["public"];
-              console.log(item.signatures[site][sig]);
               if (!item.signatures[site][sig]) {
                 continue;
               }
-              results.push(item.signatures[site][sig].pubKey = pubKeyForSite);
+              item.signatures[site][sig].pubKey = keyJSON["public"];
+              results.push(console.log('site', site, 'sig', sig, 'should have pubKey', keyJSON["public"], item.signatures[site][sig]));
             }
             return results;
           })["catch"](function(err) {
