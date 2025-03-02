@@ -19,6 +19,7 @@ startServer = (params) -> (
     pubKey: argv.pub_key
   }
   console.log "pub_key looks like this: " + argv.pub_key
+  console.log "private_key looks like this: " + argv.private_key
   sessionless.getKeys = () -> signatureKeys
 
   app.get '/plugin/signature2/owner-key', (req, res) -> 
@@ -39,6 +40,7 @@ startServer = (params) -> (
     if !signatureKeys.pubKey 
       res.sendStatus(404)
     console.log 'signatureKeys', signatureKeys
+    console.log "argv.private_key", argv.private_key
     res.json {public: signatureKeys.pubKey, algo:'ecdsa'}
 
   app.get '/plugin/signature2/verify', (req, res) ->
@@ -98,7 +100,10 @@ startServer = (params) -> (
     _getKeys = sessionless.getKeys
     console.log "argv.private_key is still: #{argv.private_key}"
     sessionless.getKeys = () -> 
-      signatureKeys
+      {
+        privateKey: argv.private_key,
+        pubKey: argv.pub_key
+      } 
     sessionless.sign(req.params.thing)
       .then (signature) -> 
         console.log 'signature', signature
