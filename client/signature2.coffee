@@ -17,12 +17,17 @@ check = ($item) ->
   # https://www.npmjs.com/package/object-hash ?
   # https://docs.nodejitsu.com/articles/cryptography/how-to-use-crypto-module/
 
+  # sum = crypto.createHash 'md5'
+  # for item in page($item).story
+    # if item.type == 'signature'
+      # sum.update item.text
+    # else
+      # sum.update JSON.stringify(item)
+  # sum.digest 'hex'
   sum = crypto.createHash 'md5'
   for item in page($item).story
-    if item.type == 'signature'
+    if item.type == 'paragraph'
       sum.update item.text
-    else
-      sum.update JSON.stringify(item)
   sum.digest 'hex'
 
 validateSignature = (sigObj) -> 

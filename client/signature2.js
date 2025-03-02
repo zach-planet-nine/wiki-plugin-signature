@@ -20,10 +20,8 @@ check = function($item) {
   ref = page($item).story;
   for (i = 0, len = ref.length; i < len; i++) {
     item = ref[i];
-    if (item.type === 'signature') {
+    if (item.type === 'paragraph') {
       sum.update(item.text);
-    } else {
-      sum.update(JSON.stringify(item));
     }
   }
   return sum.digest('hex');
