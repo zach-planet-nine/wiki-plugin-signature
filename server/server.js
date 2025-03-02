@@ -23,9 +23,6 @@
     };
     console.log("pub_key looks like this: " + argv.pub_key);
     console.log("private_key looks like this: " + argv.private_key);
-    sessionless.getKeys = function() {
-      return signatureKeys;
-    };
     app.get('/plugin/signature2/owner-key', function(req, res) {
       var resp, site;
       site = 'http://' + decodeURIComponent(req.query.site);
@@ -46,9 +43,9 @@
         res.sendStatus(404);
       }
       console.log('signatureKeys', signatureKeys);
-      console.log("argv.private_key", argv.private_key);
+      console.log("argv.pub_key", argv.pub_key);
       return res.json({
-        public: signatureKeys.pubKey,
+        public: argv.pub_key,
         algo: 'ecdsa'
       });
     });
@@ -131,11 +128,13 @@
       }
       _getKeys = sessionless.getKeys;
       console.log(`argv.private_key is still: ${argv.private_key}`);
+      signatureKeys = {
+        privateKey: argv.private_key,
+        pubKey: argv.pub_key
+      };
       sessionless.getKeys = function() {
-        return {
-          privateKey: argv.private_key,
-          pubKey: argv.pub_key
-        };
+        console.log("this should be in sign, and returning", signatureKeys);
+        return signatureKeys;
       };
       return sessionless.sign(req.params.thing).then(function(signature) {
         console.log('signature', signature);
