@@ -101,6 +101,9 @@ emit = ($item, item) ->
     reportPromise = new Promise (resolve, reject) -> 
       statuses = []
       for site, sigs of item.signatures || {}
+        console.log 'sigs', sigs
+        console.log 'sum', sum
+        console.log 'sigs[sum]', sigs[sum]
         signature = sigs[sum].signature
         status = status sigs
         # statuses.push("<tr>#{status sigs}<br>#{signature}<br>#{site}</td>")

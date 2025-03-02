@@ -115,6 +115,9 @@ emit = function($item, item) {
       ref = item.signatures || {};
       for (site in ref) {
         sigs = ref[site];
+        console.log('sigs', sigs);
+        console.log('sum', sum);
+        console.log('sigs[sum]', sigs[sum]);
         signature = sigs[sum].signature;
         status = status(sigs);
         statuses.push(status);
