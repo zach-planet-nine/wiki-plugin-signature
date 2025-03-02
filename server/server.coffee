@@ -14,12 +14,12 @@ startServer = (params) -> (
   # this is meant to be .wiki/status/owners.json, but any valid path with the correct json will work
   idFile = argv.id || ''
   
-  sessionlessKeys = {
+  signatureKeys = {
     privateKey: argv.private_key,
     pubKey: argv.pub_key
   }
   console.log "pub_key looks like this: " + argv.pub_key
-  sessionless.getKeys = () -> sessionlessKeys
+  sessionless.getKeys = () -> signatureKeys
 
   app.get '/plugin/signature2/owner-key', (req, res) -> 
     site = 'http://' + decodeURIComponent req.query.site
@@ -36,10 +36,10 @@ startServer = (params) -> (
         res.sendStatus 404
 
   app.get '/plugin/signature2/key', (req, res) ->
-    if !sessionlessKeys.pubKey 
+    if !signatureKeys.pubKey 
       res.sendStatus(404)
-    console.log 'sessionlessKeys', sessionlessKeys
-    res.json {public: sessionlessKeys.pubKey, algo:'ecdsa'}
+    console.log 'signatureKeys', signatureKeys
+    res.json {public: signatureKeys.pubKey, algo:'ecdsa'}
 
   app.get '/plugin/signature2/verify', (req, res) ->
     console.log 'query is: ', req.query
@@ -61,18 +61,18 @@ startServer = (params) -> (
 
     console.log "persisting #{Object.keys(wikiObj).length} files"
 
-    payload = {timestamp: new Date().getTime() + "", pubKey: sessionlessKeys.pubKey, hash: "fedwiki", bdo: wikiObj}
+    payload = {timestamp: new Date().getTime() + "", pubKey: signatureKeys.pubKey, hash: "fedwiki", bdo: wikiObj}
     console.log(typeof payload.timestamp)
-    console.log(typeof sessionlessKeys.pubKey)
+    console.log(typeof signatureKeys.pubKey)
     console.log(typeof payload.hash)
     message = "#{payload.timestamp}#{payload.pubKey}#{payload.hash}"
     console.log message
     console.log message.length
-    console.log sessionlessKeys.privateKey
-    # sessionless.getKeys().then (_sessionlessKeys) -> 
-    console.log "the received sessionlessKeys are: #{JSON.stringify(sessionless.getKeys())}"
-    console.log sessionlessKeys.privateKey
-    console.log typeof sessionlessKeys.privateKey
+    console.log signatureKeys.privateKey
+    # sessionless.getKeys().then (_signatureKeys) -> 
+    console.log "the received signatureKeys are: #{JSON.stringify(sessionless.getKeys())}"
+    console.log signatureKeys.privateKey
+    console.log typeof signatureKeys.privateKey
     sessionless.sign(message).then (signature) ->
       payload.signature = signature
       console.log "Sending to allyabase with signature", payload.signature
@@ -91,13 +91,14 @@ startServer = (params) -> (
 
 
   app.get '/plugin/signature2/:thing', (req, res) ->
-    console.log "got a request to sign #{req.params.thing} with #{JSON.stringify(sessionlessKeys)}"
-    if !sessionlessKeys.privateKey 
+    console.log "got a request to sign #{req.params.thing} with #{JSON.stringify(signatureKeys)}"
+    if !signatureKeys.privateKey 
       console.log "there's no private key"
       res.sendStatus(404)
     _getKeys = sessionless.getKeys
+    console.log "argv.private_key is still: #{argv.private_key}"
     sessionless.getKeys = () -> 
-      sessionlessKeys
+      signatureKeys
     sessionless.sign(req.params.thing)
       .then (signature) -> 
         console.log 'signature', signature
