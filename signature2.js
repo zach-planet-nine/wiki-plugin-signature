@@ -159,9 +159,10 @@ bind = function($item, item) {
     host = location.host;
     console.log('signining sum', sum);
     return fetch('/plugin/signature2/' + timestamp + rev + algo + sum).then(function(res) {
-      var base, name;
+      var base, base1, name;
       item.signatures || (item.signatures = {});
       (base = item.signatures)[name = location.host] || (base[name] = {});
+      (base1 = item.signatures[location.host])[sum] || (base1[sum] = {});
       return res.json();
     }).then(function(json) {
       var signature;
@@ -181,7 +182,7 @@ bind = function($item, item) {
       bind($item, item);
       return update();
     })["catch"](function(err) {
-      return console.error('failure to sign message');
+      return console.error('failure to sign message', err);
     });
   });
 };

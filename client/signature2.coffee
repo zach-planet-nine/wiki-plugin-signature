@@ -166,6 +166,7 @@ bind = ($item, item) ->
       .then((res) -> 
         item.signatures ||= {}
         item.signatures[location.host] ||= {}
+        item.signatures[location.host][sum] ||= {}
         return res.json()
       ).then((json) ->
         console.log 'json', json
@@ -177,7 +178,7 @@ bind = ($item, item) ->
         bind $item, item
         update()
       ).catch((err) ->
-        console.error('failure to sign message')
+        console.error('failure to sign message', err)
       )
 
 
