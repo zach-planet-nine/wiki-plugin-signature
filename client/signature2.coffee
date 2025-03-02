@@ -171,6 +171,7 @@ bind = ($item, item) ->
         console.log 'json', json
         signature = json.signature
         item.signatures[location.host][sum] = {date, timestamp, rev, algo, sum, signature}
+        console.log "signatures now has", item.signature[location.host][sum]
         $item.empty()
         emit $item, item
         bind $item, item

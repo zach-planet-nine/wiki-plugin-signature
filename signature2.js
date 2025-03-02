@@ -175,6 +175,7 @@ bind = function($item, item) {
         sum: sum,
         signature: signature
       };
+      console.log("signatures now has", item.signature[location.host][sum]);
       $item.empty();
       emit($item, item);
       bind($item, item);
