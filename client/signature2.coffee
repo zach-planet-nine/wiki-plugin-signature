@@ -75,6 +75,8 @@ emit = ($item, item) ->
   getKeys = ->
     getKeysPromise = new Promise (resolve, reject) ->
       fetches = []
+      if !item.signatures
+        resolve()
       Object.keys(item.signatures).forEach (site) ->
       # for _site of item.signatures || {}
         # site = _site + ''
