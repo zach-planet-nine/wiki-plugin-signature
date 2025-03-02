@@ -76,6 +76,7 @@ emit = function($item, item) {
       var encodedSite, f, fetches, site;
       fetches = [];
       for (site in item.signatures || {}) {
+        console.log('seems like site isn\'t correct', site);
         encodedSite = encodeURIComponent(site);
         f = fetch('/plugin/signature2/owner-key?site=' + encodedSite).then(function(resp) {
           console.log('received response from server', resp);
