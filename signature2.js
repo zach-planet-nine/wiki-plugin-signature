@@ -75,7 +75,7 @@ emit = function($item, item) {
     getKeysPromise = new Promise(function(resolve, reject) {
       var fetches;
       fetches = [];
-      Object.keys(item.signature).forEach(function(site) {
+      Object.keys(item.signatures).forEach(function(site) {
         var encodedSite, f;
         console.log('seems like site isn\'t correct', site);
         encodedSite = encodeURIComponent(site);

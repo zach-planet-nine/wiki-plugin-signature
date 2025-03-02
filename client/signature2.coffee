@@ -75,7 +75,7 @@ emit = ($item, item) ->
   getKeys = ->
     getKeysPromise = new Promise (resolve, reject) ->
       fetches = []
-      Object.keys(item.signature).forEach (site) ->
+      Object.keys(item.signatures).forEach (site) ->
       # for _site of item.signatures || {}
         # site = _site + ''
         console.log 'seems like site isn\'t correct', site
