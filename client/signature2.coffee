@@ -110,9 +110,9 @@ emit = ($item, item) ->
         console.log 'sum', sum
         console.log 'sigs[sum]', sigs[sum]
         signature = sigs[sum].signature
-        status = status sigs
+        _status = status sigs
         # statuses.push("<tr>#{status sigs}<br>#{signature}<br>#{site}</td>")
-        statuses.push status
+        statuses.push _status
 
       Promise.all(statuses).then (stats) ->
         resolve(stats)

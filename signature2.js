@@ -108,7 +108,7 @@ emit = function($item, item) {
   report = function() {
     var reportPromise;
     reportPromise = new Promise(function(resolve, reject) {
-      var ref, signature, sigs, site, statuses;
+      var _status, ref, signature, sigs, site, statuses;
       statuses = [];
       ref = item.signatures || {};
       for (site in ref) {
@@ -117,8 +117,8 @@ emit = function($item, item) {
         console.log('sum', sum);
         console.log('sigs[sum]', sigs[sum]);
         signature = sigs[sum].signature;
-        status = status(sigs);
-        statuses.push(status);
+        _status = status(sigs);
+        statuses.push(_status);
       }
       return Promise.all(statuses).then(function(stats) {
         return resolve(stats);
