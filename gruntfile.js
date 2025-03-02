@@ -7,12 +7,12 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-coffee');
 
   grunt.initConfig({
-    clean: ['client/signature.js', 'client/signature.js.map', 'server/server.js', 'test/test.js', 'test/test.js.map'],
+    clean: ['client/signature2.js', 'client/signature2.js.map', 'server/server.js', 'test/test.js', 'test/test.js.map'],
 
     browserify: {
       client: { 
-	src: ['client/signature.coffee'],
-	dest: 'client/signature.js',
+	src: ['client/signature2.coffee'],
+	dest: 'client/signature2.js',
 	options: {
 	  transform: ['coffeeify'],
 	  browserifyOptions: {

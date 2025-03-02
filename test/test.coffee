@@ -1,7 +1,7 @@
 # build time tests for signature plugin
 # see http://mochajs.org/
 
-signature = require '../client/signature'
+signature = require '../client/signature2'
 expect = require 'expect.js'
 
 describe 'signature plugin', ->

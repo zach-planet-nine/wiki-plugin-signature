@@ -186,7 +186,7 @@ bind = function($item, item) {
 };
 
 if (typeof window !== "undefined" && window !== null) {
-  window.plugins.signature = {
+  window.plugins.signature2 = {
     emit: emit,
     bind: bind
   };
